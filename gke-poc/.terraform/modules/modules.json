@@ -1,0 +1,32 @@
+{
+  "Modules": [
+    {
+      "Key": "",
+      "Source": "",
+      "Dir": "."
+    },
+    {
+      "Key": "gke",
+      "Source": "registry.terraform.io/terraform-google-modules/kubernetes-engine/google//modules/private-cluster",
+      "Version": "29.0.0",
+      "Dir": ".terraform/modules/gke/modules/private-cluster"
+    },
+    {
+      "Key": "my-app-workload-identity",
+      "Source": "registry.terraform.io/terraform-google-modules/kubernetes-engine/google//modules/workload-identity",
+      "Version": "29.0.0",
+      "Dir": ".terraform/modules/my-app-workload-identity/modules/workload-identity"
+    },
+    {
+      "Key": "my-app-workload-identity.annotate-sa",
+      "Source": "registry.terraform.io/terraform-google-modules/gcloud/google//modules/kubectl-wrapper",
+      "Version": "3.3.0",
+      "Dir": ".terraform/modules/my-app-workload-identity.annotate-sa/modules/kubectl-wrapper"
+    },
+    {
+      "Key": "my-app-workload-identity.annotate-sa.gcloud_kubectl",
+      "Source": "../..",
+      "Dir": ".terraform/modules/my-app-workload-identity.annotate-sa"
+    }
+  ]
+}
