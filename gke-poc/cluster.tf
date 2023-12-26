@@ -1,10 +1,6 @@
 locals {
-  separator               = ","
-  node-locations          = join(local.separator, element(chunklist(data.google_compute_zones.zones-within-region.names, 2), 0))
-
-  initial-node-count      = 0
-  cluster-metadata-server = "GKE_METADATA"
-  identity-namespace      = "${var.project-id}.svc.id.goog"
+  # Fetching available zones from the region and taking first two for nodes location
+  node-locations              = join(",", element(chunklist(data.google_compute_zones.zones-within-region.names, 2), 0))
 }
 
 data "google_compute_zones" "zones-within-region" {
@@ -17,13 +13,14 @@ module "gke" {
   source                   = "terraform-google-modules/kubernetes-engine/google//modules/private-cluster"
   project_id               = var.project-id
   name                     = "gcp-poc-gke-cluster"
+#  kubernetes_version       = var.gke-cluster-version
   regional                 = true
   region                   = var.region
   deletion_protection      = false
+  node_metadata            = "GKE_METADATA"
+  identity_namespace       = "${var.project-id}.svc.id.goog"
   remove_default_node_pool = true
-  initial_node_count       = local.initial-node-count
-  identity_namespace       = local.identity-namespace
-  node_metadata            = local.cluster-metadata-server
+  initial_node_count       = 0
   ip_range_pods            = var.pods-ip-range-name
   ip_range_services        = var.services-ip-range-name
   network                  = var.private-vpc-name

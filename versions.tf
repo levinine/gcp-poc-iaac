@@ -1,5 +1,3 @@
-# Configuring backend for Terraform state files to be saved into.
-# In this case it's manually made storage bucket in GCP (lines:20-23)
 terraform {
   required_version = "=1.5.6"
 

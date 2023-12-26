@@ -28,5 +28,5 @@ resource "google_pubsub_subscription" "weather-pubsub-subscription" {
     minimum_backoff = "10s"
   }
 
-  enable_message_ordering    = false
+  enable_message_ordering = false
 }
