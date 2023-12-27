@@ -2,7 +2,7 @@ output "sql-instance-name" {
   value = local.instance-name
 }
 
-output "database_url" {
+output "database-url" {
   value = "jdbc:mysql://${data.google_sql_database_instance.db-instance-data.dns_name}:3306/${google_sql_database.db.name}"
 }
 

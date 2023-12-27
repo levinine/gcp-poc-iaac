@@ -70,7 +70,7 @@ module "secret-manager" {
   depends_on = [module.messaging, module.sql-database]
 
   region                   = var.region
-  db-uri                   = module.sql-database.database_url
+  db-uri                   = module.sql-database.database-url
   db-username              = module.sql-database.application-username
   db-password              = module.sql-database.application-password
   pubsub-subscription-name = module.messaging.pubsub-subscription-name
