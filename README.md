@@ -3,6 +3,7 @@
 ## Table of content
 
 - [Overview](#overview)
+- [Terraform - general notes](#terraform---general-notes)
 - [Google Kubernetes Engine](#google-kubernetes-engine)
 - [Cloud SQL](#cloud-sql)
 - [Cloud Run](#cloud-run)
@@ -28,6 +29,11 @@ If you want to skip down to business you can go to [How to run](#how-to-run). Ot
 Bellow are descriptions, module-by-module, with some (like IAM and Networking provisioning) being mentioned through-out
 all the individual descriptions.
 
+### Terraform - general notes
+
+
+
+
 ### Google Kubernetes Engine
 
 At the center of this setup lies [VPC-native Kubernetes cluster](https://cloud.google.com/kubernetes-engine/docs/concepts/alias-ips) running two nodes (each being deployed to two separate zones)
@@ -41,6 +47,10 @@ The resources for everything related to GKE:
 - [Virtual Private Cloud and subnetwork](https://github.com/levinine/gcp-poc-iaac/tree/main/networking)
 - [Specific setup for proxying through Bastion VM](https://github.com/levinine/gcp-poc-iaac/tree/main/networking/firewall-ingress-nat.tf)
 - [Service accounts and role bindings](https://github.com/levinine/gcp-poc-iaac/tree/main/iam)
+
+#### Terraform
+
+Unlike with other resources, provisioning of Kubernetes cluster is done using 
 
 
 ### Cloud SQL
@@ -122,6 +132,10 @@ this POC to work:
 - Identity and Access Management (IAM) API
 
 
+> **Note:** The following instructions are being described for MacOS users. There should be little difference for 
+> different OSs (Especially Ubuntu-like distros), but regardless - if you're not using MacOS, double-check commands
+> before you execute them.
+
 Login with **gcloud** and obtain **Application Default Credentials (ADC)**:
 1. `gcloud auth login`
 2. `gcloud auth application-default login`
@@ -160,3 +174,32 @@ should look like this:
 
 Alternatively and as mentioned above, you could simply execute the `setup-tf.sh`. You will be prompted to confirm the plan
 of provisioning twice, but everything else will run on its own.
+
+Regardless, after Terraform had finished, the output will be printed in terminal which should be used to finalize the setup.
+Run these commands in new terminal session.
+Commands and order in which to execute them to achieve different goals:
+1. To connect `kubectl` to remote cluster:
+   1. `run-to-tunnel-to-bastion-via-iap`
+   2. `run-to-specify-proxy`
+
+   Test if tunneling works properly by running `kubectl get nodes`. You should get a list of two nodes in return.  
+
+2. For GKE workloads to be able to use GCP services, the Kubernetes service account should be created and annotated to employ Workload identity:
+   1. `kubectl create serviceaccount -n default pod-service-account-mapped`
+   2. `kubectl annotate serviceaccount -n default pod-service-account-mapped iam.gke.io/gcp-service-account=pod-service-account-mapped@srb-du04-due-13.iam.gserviceaccount.com`  
+
+3. To set up the ***Weather-data*** service, Kubernetes resources must be deployed; namely *deployment.yaml*, 
+   *service-nodeport.yaml* and *ingress.yaml*, preferably in this order. All of these can be found in ***Weather-data***
+   root directory:
+   1. `kubectl apply -f $(resource_file)`  
+
+4. To stop listening on remote client (stop SSH tunneling):
+   1. `lsof -i -n -P | grep 8888 | awk '{print $2}' | grep -o '[0-9]\\+' | sort -u | xargs sudo kill`
+
+
+If problem arises with connection, try opening up new terminal session, re-authenticating with gcloud and re-opening SSH
+tunnel. Most of the time, this will resolve the issue. This also goes if you stop listening on the remote client and
+wish to reconnect your local kubectl.
+
+The remaining four outputs: *db-uri-id*, *db-username-id*, *db-password-id* and *pubsub-subscription-id* are references
+to secrets in Secret Manager and are used in **application.properties** file in ***Weather-data*** application.
