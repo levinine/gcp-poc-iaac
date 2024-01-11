@@ -29,10 +29,6 @@ If you want to skip down to business you can go to [How to run](#how-to-run). Ot
 Bellow are descriptions,  
 module-by-module, with some (like IAM and Networking provisioning) being mentioned through-out all the individual descriptions.
 
-### Terraform - general notes
-
-
-
 
 ### Google Kubernetes Engine
 
