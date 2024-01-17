@@ -3,7 +3,6 @@
 ## Table of content
 
 - [Overview](#overview)
-- [Terraform - general notes](#terraform---general-notes)
 - [Google Kubernetes Engine](#google-kubernetes-engine)
 - [Cloud SQL](#cloud-sql)
 - [Cloud Run](#cloud-run)
@@ -46,10 +45,6 @@ The resources for everything related to GKE:
 - [Virtual Private Cloud and subnetwork](https://github.com/levinine/gcp-poc-iaac/tree/main/networking)
 - [Specific setup for proxying through Bastion VM](https://github.com/levinine/gcp-poc-iaac/tree/main/networking/firewall-ingress-nat.tf)
 - [Service accounts and role bindings](https://github.com/levinine/gcp-poc-iaac/tree/main/iam)
-
-#### Terraform
-
-Unlike with other resources, provisioning of Kubernetes cluster is done using 
 
 
 ### Cloud SQL
@@ -186,7 +181,9 @@ new terminal session. Commands and order in which to execute them to achieve dif
    1. `run-to-tunnel-to-bastion-via-iap`
    2. `run-to-specify-proxy`
 
-   Test if tunneling works properly by running `kubectl get nodes`. You should get a list of two nodes in return.  
+Cluster credentials in .kubeconfig will be automatically configured by Terraform execution. See null_resource.generate-kubeconfig  
+resource in cluster.tf, at line 76.
+Test if tunneling works properly by running `kubectl get nodes`. You should get a list of two nodes in return.  
 
 2. For GKE workloads to be able to use GCP services, the Kubernetes service account should be created and annotated to employ Workload identity:
    1. `kubectl create serviceaccount -n default pod-service-account-mapped`

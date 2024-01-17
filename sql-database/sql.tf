@@ -16,11 +16,6 @@ resource "google_sql_database_instance" "sql-db-instance" {
     availability_type = "REGIONAL"
     disk_autoresize   = true
 
-    database_flags {
-      name  = "cloudsql_iam_authentication"
-      value = "on"
-    }
-
     ip_configuration {
       psc_config {
         psc_enabled               = true

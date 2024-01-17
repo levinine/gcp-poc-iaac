@@ -13,7 +13,7 @@ module "gke" {
   source                   = "terraform-google-modules/kubernetes-engine/google//modules/private-cluster"
   project_id               = var.project-id
   name                     = "gcp-poc-gke-cluster"
-#  kubernetes_version       = var.gke-cluster-version
+  kubernetes_version       = var.gke-cluster-version
   regional                 = true
   region                   = var.region
   deletion_protection      = false
