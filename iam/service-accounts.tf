@@ -8,13 +8,18 @@ but this decision should be carefully considered, given the additional overhead 
 */
 
 
-# ======================================================================================================================
-# ======================================| SERVICE ACCOUNTS SECTION |====================================================
-# ======================================================================================================================
+locals {
+  log-writer = "roles/logging.logWriter"
 
-#                                       ___________________________
-#                                      | Cloud Run Service Account |
-#                                       ===========================
+  gke-pods-roles = [local.log-writer, "roles/cloudsql.instanceUser", "roles/cloudsql.admin", "roles/dns.admin",
+  "roles/pubsub.subscriber", "roles/secretmanager.secretAccessor", "roles/secretmanager.viewer"]
+  gke-nodes-roles           = ["roles/compute.serviceAgent", "roles/artifactregistry.reader", local.log-writer]
+  cloud-run-roles           = ["roles/pubsub.publisher", local.log-writer]
+  cloud-run-scheduler-roles = ["roles/run.invoker", local.log-writer]
+
+  pod-sa-name   = "pod-service-account-mapped"
+  k8s-namespace = "default"
+}
 
 resource "google_service_account" "cloud-run-job-service-account" {
   account_id   = "cloud-run-job-sa"
@@ -22,28 +27,16 @@ resource "google_service_account" "cloud-run-job-service-account" {
   description  = "Service Account for Weather data publisher to publish to PubSub"
 }
 
-#                                    _________________________________
-#                                   | Cloud Scheduler Service Account |
-#                                    =================================
-
 resource "google_service_account" "cloud-run-job-scheduler-service-account" {
   account_id   = "cloud-run-job-scheduler-sa"
   display_name = "Cloud Run scheduler Service Account"
   description  = "Service Account for Weather data publisher trigger to execute the Cloud Run job"
 }
 
-#                                          _____________________
-#                                         | GKE Service Account |
-#                                          =====================
-
-resource "google_service_account" "gke-cluster-service-account" {
-  account_id   = "gke-cluster-sa"
-  display_name = "GKE cluster service account"
+resource "google_service_account" "gke-cluster-nodes-service-account" {
+  account_id   = "gke-cluster-nodes-sa"
+  display_name = "GKE cluster nodes service account"
 }
-
-#                                          _____________________
-#                                         | Pods Service Account |
-#                                          =====================
 
 resource "google_service_account" "pod-service-account" {
   account_id   = local.pod-sa-name
@@ -54,113 +47,40 @@ resource "google_service_account" "pod-service-account" {
 # =======================================| SERVICE ACCOUNT BINDINGS |===================================================
 # ======================================================================================================================
 
-#                                        _______________________
-#                                       | Cloud Run SA bindings |
-#                                        =======================
+resource "google_project_iam_member" "cloud-run-role-binding" {
+  for_each = toset(local.cloud-run-roles)
 
-resource "google_project_iam_member" "pubsub-publisher-to-cr" {
-  project = var.project-id
   member  = "serviceAccount:${google_service_account.cloud-run-job-service-account.email}"
-  role    = "roles/pubsub.publisher"
+  project = var.project-id
+  role    = each.value
 }
 
-resource "google_project_iam_member" "log-writer-to-cr" {
-  project = var.project-id
-  member  = "serviceAccount:${google_service_account.cloud-run-job-service-account.email}"
-  role    = "roles/logging.logWriter"
-}
+resource "google_project_iam_member" "cloud-run-scheduler-role-binding" {
+  for_each = toset(local.cloud-run-scheduler-roles)
 
-#                                     _____________________________
-#                                    | Cloud Scheduler SA bindings |
-#                                     =============================
-
-resource "google_project_iam_member" "log-writer-to-crs" {
-  project = var.project-id
   member  = "serviceAccount:${google_service_account.cloud-run-job-scheduler-service-account.email}"
-  role    = "roles/logging.logWriter"
-}
-
-resource "google_project_iam_member" "job-invoker-to-crs" {
   project = var.project-id
-  member  = "serviceAccount:${google_service_account.cloud-run-job-scheduler-service-account.email}"
-  role    = "roles/run.invoker"
+  role    = each.value
 }
 
-#                                        _______________________
-#                                       |   GKE SA bindings     |
-#                                        =======================
+resource "google_project_iam_member" "gke-nodes-roles-binding" {
+  for_each = toset(local.gke-nodes-roles)
 
-resource "google_project_iam_member" "log-writer-to-gke" {
+  member  = "serviceAccount:${google_service_account.gke-cluster-nodes-service-account.email}"
   project = var.project-id
-  member  = "serviceAccount:${google_service_account.gke-cluster-service-account.email}"
-  role    = "roles/logging.logWriter"
+  role    = each.value
 }
 
-resource "google_project_iam_member" "artifact-registry-reader-to-gke" {
-  project = var.project-id
-  member  = "serviceAccount:${google_service_account.gke-cluster-service-account.email}"
-  role    = "roles/artifactregistry.reader"
-}
+resource "google_project_iam_member" "gke-pods-roles-binding" {
+  for_each = toset(local.gke-pods-roles)
 
-resource "google_project_iam_member" "compute-service-agent-to-gke" {
-  project = var.project-id
-  member  = "serviceAccount:${google_service_account.gke-cluster-service-account.email}"
-  role    = "roles/compute.serviceAgent"
-}
-
-#                                      ___________________________
-#                                     |   K8s pod SA bindings     |
-#                                      ===========================
-
-locals {
-  pod-sa-name   = "pod-service-account-mapped"
-  k8s-namespace = "default"
-}
-
-resource "google_project_iam_member" "log-writer-to-pod" {
-  project = var.project-id
   member  = "serviceAccount:${google_service_account.pod-service-account.email}"
-  role    = "roles/logging.logWriter"
-}
-
-resource "google_project_iam_member" "sql-instance-user-to-pod" {
   project = var.project-id
-  member  = "serviceAccount:${google_service_account.pod-service-account.email}"
-  role    = "roles/cloudsql.instanceUser"
+  role    = each.value
 }
 
-resource "google_project_iam_member" "sql-admin-to-pod" {
+resource "google_project_iam_member" "workload-identity-user-assignment" {
   project = var.project-id
-  member  = "serviceAccount:${google_service_account.pod-service-account.email}"
-  role    = "roles/cloudsql.admin"
-}
-
-resource "google_project_iam_member" "dns-admin-to-pod" {
-  project = var.project-id
-  member  = "serviceAccount:${google_service_account.pod-service-account.email}"
-  role    = "roles/dns.admin"
-}
-
-resource "google_project_iam_member" "pubsub-subscriber-to-pod" {
-  project = var.project-id
-  member  = "serviceAccount:${google_service_account.pod-service-account.email}"
-  role    = "roles/pubsub.subscriber"
-}
-
-resource "google_project_iam_member" "secret-manager-viewer-to-pod" {
-  project = var.project-id
-  member  = "serviceAccount:${google_service_account.pod-service-account.email}"
-  role    = "roles/secretmanager.viewer"
-}
-
-resource "google_project_iam_member" "secret-manager-secret-accessor-to-pod" {
-  project = var.project-id
-  member  = "serviceAccount:${google_service_account.pod-service-account.email}"
-  role    = "roles/secretmanager.secretAccessor"
-}
-
-resource "google_service_account_iam_member" "workload-identity-user-assignment" {
-  service_account_id = google_service_account.pod-service-account.name
-  role               = "roles/iam.workloadIdentityUser"
-  member             = "serviceAccount:${var.project-id}.svc.id.goog[${local.k8s-namespace}/${local.pod-sa-name}]"
+  role    = "roles/iam.workloadIdentityUser"
+  member  = "serviceAccount:${var.project-id}.svc.id.goog[${local.k8s-namespace}/${local.pod-sa-name}]"
 }

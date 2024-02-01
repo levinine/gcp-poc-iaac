@@ -6,8 +6,8 @@ output "cloud-run-scheduler-service-account-email" {
   value = google_service_account.cloud-run-job-scheduler-service-account.email
 }
 
-output "gke-cluster-service-account" {
-  value = google_service_account.gke-cluster-service-account.email
+output "gke-cluster-nodes-service-account" {
+  value = google_service_account.gke-cluster-nodes-service-account.email
 }
 
 output "create-k8s-service-account" {

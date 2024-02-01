@@ -4,9 +4,3 @@ provider "google" {
   region      = var.region
   zone        = var.zone
 }
-
-provider "kubernetes" {
-  host                   = module.gke-poc.host
-  token                  = module.gke-poc.token
-  cluster_ca_certificate = module.gke-poc.cluster-ca-certificate
-}

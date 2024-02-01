@@ -3,7 +3,6 @@ resource "random_password" "sql-instance-password" {
   special = true
 }
 
-# Create Google Cloud SQL Instance
 resource "google_sql_database_instance" "sql-db-instance" {
   name             = "gcp-poc-mysql-instance"
   database_version = "MYSQL_8_0_31"
@@ -36,12 +35,8 @@ data "google_sql_database_instance" "db-instance-data" {
   name = google_sql_database_instance.sql-db-instance.name
 }
 
-locals {
-  instance-name = data.google_sql_database_instance.db-instance-data.name
-}
-
 resource "google_sql_database" "db" {
-  instance  = local.instance-name
+  instance  = data.google_sql_database_instance.db-instance-data.name
   name      = "gcp-poc-db"
   charset   = "utf8"
   collation = "utf8_general_ci"

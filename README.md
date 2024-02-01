@@ -154,7 +154,9 @@ called ***weather-data*** and the one for Cloud Run ***weather-data-publisher***
 
 1. After cloning repositories, for each run:
    1. `./gradlew clean build`
-   2. `docker build -f ./Dockerfile --tag=europe-west8-docker.pkg.dev/srb-du04-due-13/gcp-poc-artifact-registry/$(application_name):latest .`
+   2. ```shell
+      docker build -f ./Dockerfile --tag=europe-west8-docker.pkg.dev/srb-du04-due-13/gcp-poc-artifact-registry/$(application_name):latest .
+      ```
 2. [Authenticating local Docker to Artifact Registry](https://cloud.google.com/artifact-registry/docs/docker/authentication)
 
 Running `terraform plan` in project root dir will preview which exact resources will be created and how are they set up.

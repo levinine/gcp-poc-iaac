@@ -7,8 +7,6 @@ data "google_compute_zones" "zones-within-region" {
   region = var.region
 }
 
-data "google_client_config" "my-local-config" {}
-
 module "gke" {
   source                   = "terraform-google-modules/kubernetes-engine/google//modules/private-cluster"
   project_id               = var.project-id
@@ -30,23 +28,23 @@ module "gke" {
   node_pools = [
     {
       name           = "gke-cluster-node-pool"
-      machine_type   = "e2-medium" # --> more resources are needed if running Cloud SQL auth proxy as a sidecar (e2-standard-4 for example)
+      machine_type   = "e2-standard-4" # --> less resources could be used if not running Cloud SQL auth proxy as a sidecar (e2-medium for example)
       node_locations = local.node-locations
       min_count      = 1
       max_count      = 2
       disk_size_gb   = 30
     }
   ]
-  master_global_access_enabled = true
+
+  enable_private_nodes    = true
+  enable_private_endpoint = true
+
   master_authorized_networks = [
     {
       cidr_block   = var.master-ipv4-cidr-block
       display_name = "master-auth-network"
     }
   ]
-  enable_private_nodes    = true
-  enable_private_endpoint = true
-  master_ipv4_cidr_block  = var.master-ipv4-cidr-block
 }
 
 data "google_container_cluster" "poc-cluster" {

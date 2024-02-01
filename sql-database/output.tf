@@ -1,5 +1,5 @@
 output "sql-instance-name" {
-  value = local.instance-name
+  value = data.google_sql_database_instance.db-instance-data.name
 }
 
 output "database-url" {

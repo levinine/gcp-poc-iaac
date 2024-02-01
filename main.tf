@@ -1,7 +1,3 @@
-locals {
-  master-ipv4-cidr-block = "172.16.0.0/28"
-}
-
 # Provisioning repository for Docker images which will be used in Cloud Run and GKE
 resource "google_artifact_registry_repository" "gcp-poc-artifact-registry" {
   location      = var.region
@@ -84,10 +80,10 @@ module "gke-poc" {
   region                  = var.region
   zone                    = var.zone
   gke-cluster-version     = var.gke-cluster-version
-  master-ipv4-cidr-block  = local.master-ipv4-cidr-block
+  master-ipv4-cidr-block  = module.networking.master-ipv4-cidr
   private-vpc-name        = module.networking.private-vpc-name
   private-vpc-subnet-name = module.networking.private-vpc-subnet-name
   pods-ip-range-name      = module.networking.private-vpc-subnet-pods-ip-range_name
   services-ip-range-name  = module.networking.private-vpc-subnet-services-ip-range_name
-  node-pool-sa            = module.iam.gke-cluster-service-account
+  node-pool-sa            = module.iam.gke-cluster-nodes-service-account
 }
