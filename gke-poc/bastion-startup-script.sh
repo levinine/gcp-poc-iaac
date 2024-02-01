@@ -2,9 +2,8 @@ sudo apt-mark hold openssh-server
 sudo sed "s/.*nrconf{restart}.*/\$nrconf{restart} = \'a\';/" /etc/needrestart/needrestart.conf > tmp-nr.conf &&
 mv tmp-nr.conf /etc/needrestart/needrestart.conf
 
-sudo apt update > /home/package_update_log.txt
-sudo apt upgrade -y >> /home/package_update_log.txt
-sudo apt install tinyproxy -y > /home/startup_log.txt
+sudo apt update && sudo apt upgrade -y
+sudo apt install tinyproxy -y
 
 sudo sed '/^Allow 127.0.0.1$/a\
 Allow localhost
