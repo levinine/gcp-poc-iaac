@@ -1,17 +1,7 @@
-/*
-As a general rule, it's recommended using predefined roles to limit complexity.
-In some cases, it can make sense for customers to manage custom roles themselves,
-but this decision should be carefully considered, given the additional overhead associated with it.
-                       ^
-                       |
-                   Refactor
-*/
-
-
 locals {
   log-writer = "roles/logging.logWriter"
 
-  gke-pods-roles = [local.log-writer, "roles/cloudsql.instanceUser", "roles/cloudsql.admin", "roles/dns.admin",
+  gke-pods-roles = [local.log-writer, "roles/cloudsql.instanceUser", "roles/cloudsql.admin", "roles/dns.reader",
   "roles/pubsub.subscriber", "roles/secretmanager.secretAccessor", "roles/secretmanager.viewer"]
   gke-nodes-roles           = ["roles/compute.serviceAgent", "roles/artifactregistry.reader", local.log-writer]
   cloud-run-roles           = ["roles/pubsub.publisher", local.log-writer]
