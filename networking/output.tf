@@ -18,6 +18,10 @@ output "private-vpc-subnet-services-ip-range_name" {
   value = google_compute_subnetwork.gke-subnet.secondary_ip_range[1].range_name
 }
 
+output "master-ipv4-name" {
+  value = google_compute_subnetwork.gke-subnet.secondary_ip_range[2].range_name
+}
+
 output "master-ipv4-cidr" {
   value = google_compute_subnetwork.gke-subnet.secondary_ip_range[2].ip_cidr_range
 }

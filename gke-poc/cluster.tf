@@ -1,6 +1,6 @@
 locals {
   # Fetching available zones from the region and taking first two for nodes location
-  node-locations              = join(",", element(chunklist(data.google_compute_zones.zones-within-region.names, 2), 0))
+  node-locations = join(",", element(chunklist(data.google_compute_zones.zones-within-region.names, 2), 0))
 }
 
 data "google_compute_zones" "zones-within-region" {
