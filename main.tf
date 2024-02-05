@@ -14,17 +14,17 @@ resource "google_artifact_registry_repository" "gcp-poc-artifact-registry" {
 module "networking" {
   source = "./networking"
 
-  region           = var.region
-  project-id       = var.project-id
-  zone             = var.zone
+  region     = var.region
+  project-id = var.project-id
+  zone       = var.zone
 }
 
 module "private-service-connect" {
   source     = "./private-service-connect"
   depends_on = [module.sql-database]
 
-  db-instance-name = module.sql-database.sql-instance-name
   region           = var.region
+  db-instance-name = module.sql-database.sql-instance-name
   gke-subnet-name  = module.networking.private-vpc-subnet-name
   gke-vpc-name     = module.networking.private-vpc-name
   gke-vpc-id       = module.networking.private-vpc-id
@@ -37,10 +37,10 @@ module "iam" {
 }
 
 module "messaging" {
-  source = "./messaging"
+  source     = "./messaging"
   depends_on = [module.gke-poc]
 
-  region                = var.region
+  region = var.region
 }
 
 module "cloud-run" {
@@ -57,12 +57,12 @@ module "cloud-run" {
 module "sql-database" {
   source = "./sql-database"
 
-  project-id                = var.project-id
-  region                    = var.region
+  project-id = var.project-id
+  region     = var.region
 }
 
 module "secret-manager" {
-  source = "./secret-manager"
+  source     = "./secret-manager"
   depends_on = [module.messaging, module.sql-database]
 
   region                   = var.region
@@ -80,6 +80,7 @@ module "gke-poc" {
   region                  = var.region
   zone                    = var.zone
   gke-cluster-version     = var.gke-cluster-version
+  master-ipv4-name        = module.networking.master-ipv4-name
   master-ipv4-cidr-block  = module.networking.master-ipv4-cidr
   private-vpc-name        = module.networking.private-vpc-name
   private-vpc-subnet-name = module.networking.private-vpc-subnet-name

@@ -2,6 +2,7 @@ variable "project-id" {}
 variable "region" {}
 variable "zone" {}
 variable "gke-cluster-version" {}
+variable "master-ipv4-name" {}
 variable "master-ipv4-cidr-block" {}
 variable "private-vpc-name" {}
 variable "private-vpc-subnet-name" {}

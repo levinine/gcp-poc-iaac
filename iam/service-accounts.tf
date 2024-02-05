@@ -23,12 +23,12 @@ resource "google_service_account" "cloud-run-job-scheduler-service-account" {
   description  = "Service Account for Weather data publisher trigger to execute the Cloud Run job"
 }
 
-resource "google_service_account" "gke-cluster-nodes-service-account" {
+resource "google_service_account" "nodes-service-account" {
   account_id   = "gke-cluster-nodes-sa"
   display_name = "GKE cluster nodes service account"
 }
 
-resource "google_service_account" "pod-service-account" {
+resource "google_service_account" "pods-service-account" {
   account_id   = local.pod-sa-name
   display_name = "GKE pod service account"
 }
@@ -56,7 +56,7 @@ resource "google_project_iam_member" "cloud-run-scheduler-role-binding" {
 resource "google_project_iam_member" "gke-nodes-roles-binding" {
   for_each = toset(local.gke-nodes-roles)
 
-  member  = "serviceAccount:${google_service_account.gke-cluster-nodes-service-account.email}"
+  member  = "serviceAccount:${google_service_account.nodes-service-account.email}"
   project = var.project-id
   role    = each.value
 }
@@ -64,7 +64,7 @@ resource "google_project_iam_member" "gke-nodes-roles-binding" {
 resource "google_project_iam_member" "gke-pods-roles-binding" {
   for_each = toset(local.gke-pods-roles)
 
-  member  = "serviceAccount:${google_service_account.pod-service-account.email}"
+  member  = "serviceAccount:${google_service_account.pods-service-account.email}"
   project = var.project-id
   role    = each.value
 }

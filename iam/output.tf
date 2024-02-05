@@ -7,7 +7,7 @@ output "cloud-run-scheduler-service-account-email" {
 }
 
 output "gke-cluster-nodes-service-account" {
-  value = google_service_account.gke-cluster-nodes-service-account.email
+  value = google_service_account.nodes-service-account.email
 }
 
 output "create-k8s-service-account" {
@@ -15,5 +15,5 @@ output "create-k8s-service-account" {
 }
 
 output "annotate-k8s-sa-to-iam-sa" {
-  value = "kubectl annotate serviceaccount -n ${local.k8s-namespace} ${local.pod-sa-name} iam.gke.io/gcp-service-account=${google_service_account.pod-service-account.email}"
+  value = "kubectl annotate serviceaccount -n ${local.k8s-namespace} ${local.pod-sa-name} iam.gke.io/gcp-service-account=${google_service_account.pods-service-account.email}"
 }

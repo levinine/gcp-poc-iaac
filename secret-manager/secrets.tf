@@ -15,10 +15,6 @@ resource "google_secret_manager_secret_version" "sql-instance-uri-final-v" {
   secret_data = var.db-uri
 }
 
-data "google_secret_manager_secret" "db-uri-data" {
-  secret_id = google_secret_manager_secret.db-uri.secret_id
-}
-
 # ======================================================================================================================
 
 resource "google_secret_manager_secret" "db-username" {
